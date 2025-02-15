@@ -15,12 +15,14 @@ function App() {
       if (window.ethereum) {
         const web3Instance = new Web3(window.ethereum);
         try {
-          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          await window.ethereum.request({ method: "eth_requestAccounts" });
           setWeb3(web3Instance);
           const accounts = await web3Instance.eth.getAccounts();
           setAccount(accounts[0]);
           const networkId = await web3Instance.eth.net.getId();
+          console.log("Network ID:", networkId);
           const deployedNetwork = HelloWorldContract.networks[networkId];
+          console.log("Deployed Network:", deployedNetwork);
 
           if (deployedNetwork) {
             const contractInstance = new web3Instance.eth.Contract(
@@ -32,7 +34,10 @@ function App() {
             console.error("Contract not deployed on the detected network.");
           }
         } catch (error) {
-          console.error("Error connecting to MetaMask or getting account information:", error);
+          console.error(
+            "Error connecting to MetaMask or getting account information:",
+            error
+          );
         }
       } else {
         console.error("MetaMask not detected.");
@@ -45,7 +50,9 @@ function App() {
   const handleSetName = async () => {
     if (!contract || !account) return;
     try {
-      await contract.methods.setName(newName).send({ from: account, gas: 3000000 });
+      await contract.methods
+        .setName(newName)
+        .send({ from: account, gas: 50000000});
       setNewName("");
     } catch (error) {
       console.error("Error setting name:", error);
@@ -55,7 +62,7 @@ function App() {
   const handleGetName = async () => {
     if (!contract) return;
     try {
-      const name = await contract.methods.getName().call();
+      const name = await contract.methods.getName().call({ gas: 5000000000 });
       setStoredName(name);
     } catch (error) {
       console.error("Error getting name:", error);
@@ -67,10 +74,10 @@ function App() {
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '20px'}} className="App">
-      <h1 
-      style={{margin: 10, display: "flex", marginBottom: 20}}
-      >Hello, {storedName}!</h1>
+    <div style={{ textAlign: "center", marginTop: "20px" }} className="App">
+      <h1 style={{ margin: 10, display: "flex", marginBottom: 20 }}>
+        Hello, {storedName}!
+      </h1>
       <input
         type="text"
         value={newName}
